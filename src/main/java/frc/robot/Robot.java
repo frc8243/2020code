@@ -31,6 +31,11 @@ import edu.wpi.first.wpilibj.SpeedControllerGroup;
 
 public class Robot extends TimedRobot {
 
+  //button and axis mappings
+  private final int LEFT_TRIGGER = 3;
+  private final int RIGHT_TRIGGER = 2;
+  private final int LEFT_STICK_X = 0;
+
   //Controller
   /**
    * Left Joystick is foward and backward, axis 1
@@ -159,7 +164,6 @@ public class Robot extends TimedRobot {
 
   @Override
   public void teleopPeriodic() {
-    //attempted code to move joysticks, did not work 2/14
     double speed = 0.2 * (controller.getRawAxis(3) - controller.getRawAxis(2));    
     double turn =  0.1 * controller.getRawAxis(0);
 
