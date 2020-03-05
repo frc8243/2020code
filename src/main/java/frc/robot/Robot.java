@@ -10,19 +10,19 @@ package frc.robot;
 import edu.wpi.first.wpilibj.TimedRobot;
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.can.VictorSPX;
+import com.ctre.phoenix.motorcontrol.can.WPI_VictorSPX;
+
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.TimedRobot;
 
 import edu.wpi.first.wpilibj.I2C;
 import edu.wpi.first.wpilibj.Timer;
-
+import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.util.Color;
 import com.revrobotics.*;
 import edu.wpi.first.wpilibj.Servo;
-
-
-
+import edu.wpi.first.wpilibj.SpeedControllerGroup;
 
 /**
  * The VM is configured to automatically run this class, and to call the
@@ -42,13 +42,31 @@ public class Robot extends TimedRobot {
    * RB push in to spin, release to stop, button 6
    */
 
-  private final Joystick controller = new Joystick (0);
+  //TODO: Add second joystick for controlling other robot mechanisms
+  //TODO: Create enum or variables for button and axis mappings
+  
+  private final Joystick controller = new Joystick (0); // for controlling chasis / driving
 
-  VictorSPX LB = new VictorSPX(3);
-  VictorSPX LF = new VictorSPX(2);
-  VictorSPX RB = new VictorSPX(1);
-  VictorSPX RF = new VictorSPX(0);
-Servo servo = new Servo(0);
+  /*
+    Using `WPI_VictorSPX` instead of `VictorSPX` because it's compatible
+    with `SpeedControllerGroup`. See https://www.chiefdelphi.com/t/can-weirdness/335403/9
+    for details.
+  */
+  WPI_VictorSPX LB = new WPI_VictorSPX(3);
+  WPI_VictorSPX LF = new WPI_VictorSPX(2);
+  WPI_VictorSPX RB = new WPI_VictorSPX(1);
+  WPI_VictorSPX RF = new WPI_VictorSPX(0);
+
+  //https://first.wpi.edu/FRC/roborio/release/docs/java/edu/wpi/first/wpilibj/SpeedControllerGroup.html
+  SpeedControllerGroup leftGroup = new SpeedControllerGroup(LB, LF);
+  SpeedControllerGroup rightGroup = new SpeedControllerGroup(RB, RF);
+
+  //https://youtu.be/g-dgdWVO5u8?t=699
+  DifferentialDrive drive = new DifferentialDrive(leftGroup, rightGroup);
+
+  //https://docs.wpilib.org/en/latest/docs/software/actuators/servos.html#constructing-a-servo-object
+  Servo servo = new Servo(0);
+
   private double startTime;
 
   //Color Sensor
@@ -62,14 +80,16 @@ Servo servo = new Servo(0);
 
   @Override
   public void robotInit() {
-    LB.set(ControlMode.PercentOutput, 0);
-    LF.set(ControlMode.PercentOutput, 0);
-    RB.set(ControlMode.PercentOutput, 0);
-    RF.set(ControlMode.PercentOutput, 0);
+    //Uncommment if right side motors need to run in opposite direction (a.k.a. inverted)
+    // rightGroup.setInverted(true);
+
+    //stop robot
+    drive.arcadeDrive(0, 0);
+
+    //reset servo
+    servo.setAngle(0);
   }
-
  
-
   @Override
   public void autonomousInit() {
     startTime = Timer.getFPGATimestamp();
@@ -83,193 +103,89 @@ Servo servo = new Servo(0);
  
     final double time = Timer.getFPGATimestamp();
 
-//LF positive and RF negative is forward
-// current code allows robot to go in a square
+    //LF positive and RF negative is forward
+    // current code allows robot to go in a square
 
-  if (time - startTime < 1) {
- 
-    LF.set(ControlMode.PercentOutput, straight_speed);
-    RF.set(ControlMode.PercentOutput, -straight_speed);
-  }  
-
-  else if (time - startTime > 1 && time - startTime < 2) {
-    LF.set(ControlMode.PercentOutput, turn_speed);
-    RF.set(ControlMode.PercentOutput, off);
-  } 
+    //TODO: Replace motor controller calls with `DifferentialDrive.arcadeDrive`
+    //TODO: Program to drive robot across line
+    //TODO: Use encoder to measure how far robot has travelled
+    if (time - startTime < 1) {
   
-  else if (time - startTime > 2 && time - startTime < 3) {
-    LF.set(ControlMode.PercentOutput, straight_speed);
+      LF.set(ControlMode.PercentOutput, straight_speed);
+      RF.set(ControlMode.PercentOutput, -straight_speed);
+    }  
 
-    RF.set(ControlMode.PercentOutput, -straight_speed);
-  } 
-
-  else if (time - startTime > 3 && time - startTime < 4) {
-    LF.set(ControlMode.PercentOutput, turn_speed);
-
-    RF.set(ControlMode.PercentOutput, off);
-  } 
-
-  else if (time - startTime > 4 && time - startTime < 5) {
-    LF.set(ControlMode.PercentOutput, straight_speed);
-    RF.set(ControlMode.PercentOutput, -straight_speed);
-  } 
-  
-  else if (time - startTime > 5 && time - startTime < 6) {
-    LF.set(ControlMode.PercentOutput, turn_speed);
-    RF.set(ControlMode.PercentOutput, off);
-  } 
-
-  else if (time - startTime > 6 && time - startTime < 7) {
-    LF.set(ControlMode.PercentOutput, straight_speed);
-    RF.set(ControlMode.PercentOutput, -straight_speed);
-  } 
-  else {
-      LB.set(ControlMode.PercentOutput, off);
-      LF.set(ControlMode.PercentOutput, off);
-      RB.set(ControlMode.PercentOutput, off);
+    else if (time - startTime > 1 && time - startTime < 2) {
+      LF.set(ControlMode.PercentOutput, turn_speed);
       RF.set(ControlMode.PercentOutput, off);
+    } 
+    
+    else if (time - startTime > 2 && time - startTime < 3) {
+      LF.set(ControlMode.PercentOutput, straight_speed);
+
+      RF.set(ControlMode.PercentOutput, -straight_speed);
+    } 
+
+    else if (time - startTime > 3 && time - startTime < 4) {
+      LF.set(ControlMode.PercentOutput, turn_speed);
+
+      RF.set(ControlMode.PercentOutput, off);
+    } 
+
+    else if (time - startTime > 4 && time - startTime < 5) {
+      LF.set(ControlMode.PercentOutput, straight_speed);
+      RF.set(ControlMode.PercentOutput, -straight_speed);
+    } 
+    
+    else if (time - startTime > 5 && time - startTime < 6) {
+      LF.set(ControlMode.PercentOutput, turn_speed);
+      RF.set(ControlMode.PercentOutput, off);
+    } 
+
+    else if (time - startTime > 6 && time - startTime < 7) {
+      LF.set(ControlMode.PercentOutput, straight_speed);
+      RF.set(ControlMode.PercentOutput, -straight_speed);
+    } 
+    else {
+        LB.set(ControlMode.PercentOutput, off);
+        LF.set(ControlMode.PercentOutput, off);
+        RB.set(ControlMode.PercentOutput, off);
+        RF.set(ControlMode.PercentOutput, off);
+    }
   }
-
-
-}
-  
+    
 
   @Override
   public void teleopInit() {
+  
   }
 
   @Override
   public void teleopPeriodic() {
-    //Controller
-    //final double off = 0;
-    //final double on = 0.5;
-
-  //attempted code to move joysticks, did not work 2/14
-    double speed = 0;
-    
-    speed = controller.getRawAxis(3) - controller.getRawAxis(2);
-    speed *= 0.2;
-      // speed = controller.getRawAxis(3) * 0.6;
-      // speed = -controller.getRawAxis(2) * 0.6;
-    
-    double turn = controller.getRawAxis(0) * 0.1;
-
-    double left = speed + turn;
-    double right = speed - turn;
+    //attempted code to move joysticks, did not work 2/14
+    double speed = 0.2 * (controller.getRawAxis(3) - controller.getRawAxis(2));    
+    double turn =  0.1 * controller.getRawAxis(0);
 
     //Color
     final Color detectedColor = m_colorSensor.getColor();
     final double IR = m_colorSensor.getIR();
 
-    LF.set (ControlMode.PercentOutput,left);
-    LB.set (ControlMode.PercentOutput,left);
-    RF.set (ControlMode.PercentOutput, -right);
-    RB.set (ControlMode.PercentOutput,-right);
-    
-    servo.setAngle(0);
-    // the idea here was to set motors to the left and right speed according
-    //to joystick positions. did not work 2/14
-    /*if (Math.abs(turn) < 0.005  || Math.abs(speed) < 0.005) {
-      //turn = 0;
-      //\speed = 0;
-      left = speed + turn;
-      right = speed - turn;
-      LF.set (ControlMode.PercentOutput,left);
-      LB.set (ControlMode.PercentOutput,left);
-      RF.set (ControlMode.PercentOutput,-right);
-      RB.set (ControlMode.PercentOutput,-right);
+    drive.arcadeDrive(speed, turn);
 
-    }
+    //TODO: Display values in shuffleboard
+    // System.out.println("this is the left value:"+left);
+    // System.out.println("this is the right value:"+right);
+    // System.out.println("this is the speed value:"+speed);
+    // System.out.println("this is the turn value:"+turn);
 
-    else {
-      LF.set (ControlMode.PercentOutput,left);
-      LB.set (ControlMode.PercentOutput,left);
-      RF.set (ControlMode.PercentOutput,-right);
-      RB.set (ControlMode.PercentOutput,-right);
-    }*/
+    //display color readings from color sensor
+    SmartDashboard.putNumber("Red", detectedColor.red);
+    SmartDashboard.putNumber("Green", detectedColor.green);
+    SmartDashboard.putNumber("Blue", detectedColor.blue);
+    SmartDashboard.putNumber("IR", IR);
 
-    System.out.println("this is the left value:"+left);
-    System.out.println("this is the right value:"+right);
-    System.out.println("this is the speed value:"+speed);
-    System.out.println("this is the turn value:"+turn);
-
-/*
-    LF.set (ControlMode.PercentOutput,left);
-    LB.set (ControlMode.PercentOutput,left);
-    RF.set (ControlMode.PercentOutput,-right);
-    RB.set (ControlMode.PercentOutput,-right);
-
-*/
-
-
-
-// mapping on the joysticks below. currently robot move forward with RB
-// and A. B and LB makes robot go backwards
-
-    // if (controller.getRawButton(1)){
-    //   System.out.println("A");
-    //   RF.set(ControlMode.PercentOutput,-on);
-     
-    
-    // }
-    
-    // else { 
-      
-    //   RF.set(ControlMode.PercentOutput,off);
-    
-    // }
-    
-    
-    // if (controller.getRawButton(2)){
-    //   System.out.println("B");
-    //   RB.set(ControlMode.PercentOutput,on);
-    // }else{
-    //   RB.set(ControlMode.PercentOutput,off);
-    // }
-
-    // if (controller.getRawButton(3)){
-    //   System.out.println("X");
-    // }
-    // if (controller.getRawButton(4)){
-    //   System.out.println("Y");
-    // }
-    // if (controller.getRawButton(5)){
-    //   System.out.println("LB");
-    //   LB.set(ControlMode.PercentOutput,-on);
-    // }
-
-    // else{
-    //   LB.set(ControlMode.PercentOutput,off);
-
-    // }
-    // if (controller.getRawButton(6)){
-    //   System.out.println("RB");
-    //   LF.set(ControlMode.PercentOutput,on);
-
-    // }
-    
-    // else{
-    //   LF.set(ControlMode.PercentOutput,off);
-
-    // }
-    
-    //Triggers
-    /*
-    if (controller.getAxis(Joystick.AxisType(4) )){
-      System.out.println("LT");
-    }
-    if (controller.getRawAxis(3)){
-      System.out.println("RT");
-    }
-    */
-
-    
-//display color readings from color sensor
-  SmartDashboard.putNumber("Red", detectedColor.red);
-  SmartDashboard.putNumber("Green", detectedColor.green);
-  SmartDashboard.putNumber("Blue", detectedColor.blue);
-  SmartDashboard.putNumber("IR", IR);
-
+    //TODO: Read confidence reading from color sensor
+    //TODO: Use confidence reading and other values to determine color
   }
 
   @Override
