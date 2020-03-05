@@ -42,9 +42,9 @@ public class Robot extends TimedRobot {
    * RB push in to spin, release to stop, button 6
    */
 
-  //TODO: Add second joystick for controlling other robot mechanisms
-  //TODO: Create enum or variables for button and axis mappings
-  
+  //TODO #1: Add second joystick for controlling other robot mechanisms
+  //TODO #2: Create enum or variables for button and axis mappings
+
   private final Joystick controller = new Joystick (0); // for controlling chasis / driving
 
   /*
@@ -106,9 +106,9 @@ public class Robot extends TimedRobot {
     //LF positive and RF negative is forward
     // current code allows robot to go in a square
 
-    //TODO: Replace motor controller calls with `DifferentialDrive.arcadeDrive`
-    //TODO: Program to drive robot across line
-    //TODO: Use encoder to measure how far robot has travelled
+    //TODO #3: Replace motor controller calls with `DifferentialDrive.arcadeDrive`
+    //TODO #4: Program to drive robot across line
+    //TODO #5: Use encoder to measure how far robot has travelled
     if (time - startTime < 1) {
   
       LF.set(ControlMode.PercentOutput, straight_speed);
@@ -172,7 +172,7 @@ public class Robot extends TimedRobot {
 
     drive.arcadeDrive(speed, turn);
 
-    //TODO: Display values in shuffleboard
+    //TODO #6: Display values in shuffleboard
     // System.out.println("this is the left value:"+left);
     // System.out.println("this is the right value:"+right);
     // System.out.println("this is the speed value:"+speed);
@@ -184,8 +184,8 @@ public class Robot extends TimedRobot {
     SmartDashboard.putNumber("Blue", detectedColor.blue);
     SmartDashboard.putNumber("IR", IR);
 
-    //TODO: Read confidence reading from color sensor
-    //TODO: Use confidence reading and other values to determine color
+    //TODO #7: Read confidence reading from color sensor
+    //TODO #8: Use confidence reading and other values to determine color
   }
 
   @Override
