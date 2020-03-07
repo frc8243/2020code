@@ -187,10 +187,10 @@ public class Robot extends TimedRobot {
     drive.arcadeDrive(speed, turn);
 
     //TODO #6: Display values in shuffleboard
-    // System.out.println("this is the left value:"+left);
-    // System.out.println("this is the right value:"+right);
-    // System.out.println("this is the speed value:"+speed);
-    // System.out.println("this is the turn value:"+turn);
+    SmartDashboard.putNumber("LB", LB.getMotorOutputPercent());
+    SmartDashboard.putNumber("LF", LB.getMotorOutputPercent());
+    SmartDashboard.putNumber("RB", LB.getMotorOutputPercent());
+    SmartDashboard.putNumber("RF", LB.getMotorOutputPercent());
 
     //display color readings from color sensor
     SmartDashboard.putNumber("Red", detectedColor.red);
