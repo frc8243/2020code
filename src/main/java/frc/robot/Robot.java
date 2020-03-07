@@ -95,7 +95,7 @@ public class Robot extends TimedRobot {
   @Override
   public void robotInit() {
     //Uncommment if right side motors need to run in opposite direction (a.k.a. inverted)
-    rightGroup.setInverted(true);
+    drive.setRightSideInverted(true);
 
     //stop robot
     drive.arcadeDrive(0, 0);
