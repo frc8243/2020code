@@ -75,6 +75,7 @@ public class Robot extends TimedRobot {
   SpeedControllerGroup rightGroup = new SpeedControllerGroup(RB, RF);
 
   //https://youtu.be/g-dgdWVO5u8?t=699
+  //https://docs.wpilib.org/en/latest/docs/software/actuators/wpi-drive-classes.html#multi-motor-differentialdrive-with-speedcontrollergroups
   DifferentialDrive drive = new DifferentialDrive(leftGroup, rightGroup);
 
   //https://docs.wpilib.org/en/latest/docs/software/actuators/servos.html#constructing-a-servo-object
@@ -177,13 +178,23 @@ public class Robot extends TimedRobot {
 
   @Override
   public void teleopPeriodic() {
-    double speed = 0.2 * (controller.getRawAxis(RIGHT_TRIGGER) - controller.getRawAxis(LEFT_TRIGGER));    
-    double turn =  0.1 * controller.getRawAxis(LEFT_STICK_X);
+    /*
+      Team uses "racing game" controls for driving
+      right trigger - accelerate
+      left trigger  - deaccelerate
+      left joystick - steering
+
+      Speed is calculate as the difference between acceleration and deacceleration
+
+    */
+    double speed = controller.getRawAxis(RIGHT_TRIGGER) - controller.getRawAxis(LEFT_TRIGGER);    
+    double turn = controller.getRawAxis(LEFT_STICK_X);
 
     //Color
     final Color detectedColor = m_colorSensor.getColor();
     final double IR = m_colorSensor.getIR();
 
+    //updates motor controller output
     drive.arcadeDrive(speed, turn);
 
     //TODO #6: Display values in shuffleboard
