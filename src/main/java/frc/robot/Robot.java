@@ -94,13 +94,15 @@ public class Robot extends TimedRobot {
   @Override
   public void robotInit() {
     //Uncommment if right side motors need to run in opposite direction (a.k.a. inverted)
-    // rightGroup.setInverted(true);
+    rightGroup.setInverted(true);
 
     //stop robot
     drive.arcadeDrive(0, 0);
 
     //reset servo
     servo.setAngle(0);
+
+    //TODO #10: Start camera capture
   }
  
   @Override
