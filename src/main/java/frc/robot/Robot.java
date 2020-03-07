@@ -31,10 +31,21 @@ import edu.wpi.first.wpilibj.SpeedControllerGroup;
 
 public class Robot extends TimedRobot {
 
-  //button and axis mappings
-  private final int LEFT_TRIGGER = 3;
-  private final int RIGHT_TRIGGER = 2;
+  //button and axis indices for gamepad
+  private final int LEFT_TRIGGER = 2;
+  private final int RIGHT_TRIGGER = 3;
+  private final int LEFT_BUMPER = 5;
+  private final int RIGHT_BUMPER = 6;
   private final int LEFT_STICK_X = 0;
+  private final int LEFT_STICK_Y = 1;
+  private final int RIGHT_STICK_X = 4;
+  private final int RIGHT_STICK_Y = 5;
+  private final int A_BUTTON = 1;
+  private final int B_BUTTON = 2;
+  private final int X_BUTTON = 3;
+  private final int Y_BUTTON = 4;
+  private final int START_BUTTON = 8;
+  private final int BACK_BUTTON = 7;
 
   //Controller
   /**
@@ -164,8 +175,8 @@ public class Robot extends TimedRobot {
 
   @Override
   public void teleopPeriodic() {
-    double speed = 0.2 * (controller.getRawAxis(3) - controller.getRawAxis(2));    
-    double turn =  0.1 * controller.getRawAxis(0);
+    double speed = 0.2 * (controller.getRawAxis(RIGHT_TRIGGER) - controller.getRawAxis(LEFT_TRIGGER));    
+    double turn =  0.1 * controller.getRawAxis(LEFT_STICK_X);
 
     //Color
     final Color detectedColor = m_colorSensor.getColor();
@@ -184,6 +195,15 @@ public class Robot extends TimedRobot {
     SmartDashboard.putNumber("Green", detectedColor.green);
     SmartDashboard.putNumber("Blue", detectedColor.blue);
     SmartDashboard.putNumber("IR", IR);
+
+    //TODO #11: Program buttons to control servo
+    if(controller.getRawButton(A_BUTTON)){
+      servo.set(1);
+    }
+
+    else if (controller.getRawButton(B_BUTTON)){
+      servo.set(0);
+    }
 
     //TODO #7: Read confidence reading from color sensor
     //TODO #8: Use confidence reading and other values to determine color
